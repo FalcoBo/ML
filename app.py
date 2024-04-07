@@ -1,7 +1,9 @@
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 import joblib
+from plots_predict import PlotPredict
 
 # Load the model
 model = joblib.load('./model/SVC.pkl')
@@ -11,8 +13,10 @@ cleaned_titanic = pd.read_csv('./data/cleaned_titanic.csv').drop('Survived', axi
 
 # Function to display the main page
 def main():
-    st.title('Prédire les Surviants du Titanic')
+    st.title('Prédire les Survivants du Titanic')
     st.write('Veuillez remplir les informations suivantes :')
+
+    plots = PlotPredict(cleaned_titanic, model.predict(cleaned_titanic))
 
     sex = st.radio('Sexe', ['male', 'female'])
     age = st.slider('Âge', min_value=0, max_value=100, value=30, step=1)
@@ -30,20 +34,16 @@ def main():
     st.write(df_input_data)
 
     st.write('Visualisation en temps réel des données utilisateur :')
-    visualize_data(df_input_data)
+    plots.visualize_data(df_input_data)
 
     if prediction[0] == 0:
         st.write('Le passager est prédit comme non survivant.')
     else:
         st.write('Le passager est prédit comme survivant.')
 
-def visualize_data(data):
-    fig, ax = plt.subplots()
-    data.plot(kind='bar', ax=ax)
-    ax.set_title('Données utilisateur')
-    ax.set_xlabel('Caractéristiques')
-    ax.set_ylabel('Valeurs')
-    st.pyplot(fig)
+    # Plot survived passengers with PassengerId
+    # st.write('Visualisation des passagers survivants avec leur PassengerId :')
+    # plots.plot_survived_passengers()
 
 if __name__ == '__main__':
     main()
